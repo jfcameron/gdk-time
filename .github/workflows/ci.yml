@@ -1,0 +1,58 @@
+# © Joseph Cameron - All Rights Reserved
+
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.preset }} (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: linux-gcc
+            runner: ubuntu-latest
+
+          - preset: linux-clang
+            runner: ubuntu-latest
+
+          - preset: linux-gcc
+            runner: ubuntu-24.04-arm
+
+          - preset: macos-clang
+            runner: macos-latest
+
+          - preset: windows-msvc
+            runner: windows-latest
+
+          - preset: linux-gcc-ci
+            runner: ubuntu-latest
+
+          - preset: linux-clang-ci
+            runner: ubuntu-latest
+
+          - preset: linux-clang-tsan
+            runner: ubuntu-latest
+
+          - preset: linux-clang-asan
+            runner: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: test
+        run: ctest --preset ${{ matrix.preset }}

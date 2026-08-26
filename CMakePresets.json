@@ -1,0 +1,386 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "GDKTIME_BUILD_TESTS": "ON",
+        "GDKTIME_BUILD_DOCS": "OFF"
+      }
+    },
+    {
+      "name": "linux-gcc",
+      "displayName": "Linux / gcc",
+      "description": "Reference leg.",
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra"
+      }
+    },
+    {
+      "name": "linux-clang",
+      "displayName": "Linux / clang",
+      "description": "gcc and clang do not warn about the same things.",
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra"
+      }
+    },
+    {
+      "name": "macos-clang",
+      "displayName": "macOS / clang / libc++",
+      "description": "A different standard library, and a different scheduler for sleep_for to be late on.",
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -stdlib=libc++"
+      }
+    },
+    {
+      "name": "windows-msvc",
+      "displayName": "Windows / MSVC",
+      "description": "Coarser default timer granularity than the unix legs, which is exactly what the wait has to survive.",
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "/W4 /EHsc /permissive- /Zc:__cplusplus"
+      }
+    },
+    {
+      "name": "linux-gcc-ci",
+      "displayName": "Linux / gcc / CI",
+      "description": "Warnings are errors. CI only: a consumer's build should not fail on a warning we introduced.",
+      "inherits": "linux-gcc",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Werror"
+      }
+    },
+    {
+      "name": "linux-clang-ci",
+      "displayName": "Linux / clang / CI",
+      "description": "Warnings are errors. CI only: a consumer's build should not fail on a warning we introduced.",
+      "inherits": "linux-clang",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Werror"
+      }
+    },
+    {
+      "name": "linux-clang-asan",
+      "displayName": "Linux / clang / asan",
+      "description": "Address and undefined behaviour sanitizers.",
+      "inherits": "linux-clang",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -fsanitize=address,undefined -fno-omit-frame-pointer",
+        "CMAKE_EXE_LINKER_FLAGS": "-Wall -Wextra -fsanitize=address,undefined -fno-omit-frame-pointer"
+      }
+    },
+    {
+      "name": "linux-clang-tsan",
+      "displayName": "Linux / clang / tsan",
+      "description": "Thread sanitizer: the frame rate cap is written from other threads while run() reads it.",
+      "inherits": "linux-clang",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -fsanitize=thread -fno-omit-frame-pointer",
+        "CMAKE_EXE_LINKER_FLAGS": "-Wall -Wextra -fsanitize=thread -fno-omit-frame-pointer"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-gcc",
+      "configurePreset": "linux-gcc",
+      "targets": [
+        "gdktime_test_0",
+        "gdktime_header_self_containment"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-clang",
+      "configurePreset": "linux-clang",
+      "targets": [
+        "gdktime_test_0",
+        "gdktime_header_self_containment"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "macos-clang",
+      "configurePreset": "macos-clang",
+      "targets": [
+        "gdktime_test_0",
+        "gdktime_header_self_containment"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "windows-msvc",
+      "configurePreset": "windows-msvc",
+      "targets": [
+        "gdktime_test_0",
+        "gdktime_header_self_containment"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "linux-gcc-ci",
+      "configurePreset": "linux-gcc-ci",
+      "targets": [
+        "gdktime_test_0",
+        "gdktime_header_self_containment"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-clang-ci",
+      "configurePreset": "linux-clang-ci",
+      "targets": [
+        "gdktime_test_0",
+        "gdktime_header_self_containment"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-clang-asan",
+      "configurePreset": "linux-clang-asan",
+      "targets": [
+        "gdktime_test_0",
+        "gdktime_header_self_containment"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-clang-tsan",
+      "configurePreset": "linux-clang-tsan",
+      "targets": [
+        "gdktime_test_0",
+        "gdktime_header_self_containment"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "linux-gcc",
+      "configurePreset": "linux-gcc",
+      "filter": {
+        "include": {
+          "name": "gdktime_test_0"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-clang",
+      "configurePreset": "linux-clang",
+      "filter": {
+        "include": {
+          "name": "gdktime_test_0"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "macos-clang",
+      "configurePreset": "macos-clang",
+      "filter": {
+        "include": {
+          "name": "gdktime_test_0"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "windows-msvc",
+      "configurePreset": "windows-msvc",
+      "filter": {
+        "include": {
+          "name": "gdktime_test_0"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "linux-gcc-ci",
+      "configurePreset": "linux-gcc-ci",
+      "filter": {
+        "include": {
+          "name": "gdktime_test_0"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-clang-ci",
+      "configurePreset": "linux-clang-ci",
+      "filter": {
+        "include": {
+          "name": "gdktime_test_0"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-clang-asan",
+      "configurePreset": "linux-clang-asan",
+      "filter": {
+        "include": {
+          "name": "gdktime_test_0"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-clang-tsan",
+      "configurePreset": "linux-clang-tsan",
+      "filter": {
+        "include": {
+          "name": "gdktime_test_0"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    }
+  ]
+}
