@@ -4,7 +4,9 @@ cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/jfc-cmake/jfclib.cmake")
 
-project(null)
+project(gdktime
+    VERSION 0.1
+    DESCRIPTION "game development kit timing lib")
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(GDKTIME_IS_TOP_LEVEL ON)
@@ -38,20 +40,26 @@ else()
     endforeach()
 endif()
 
-jfc_project(library
-    NAME "gdktime"
-    VERSION 0.1
-    DESCRIPTION "game development kit timing lib"
-    C++_STANDARD 20
-    C_STANDARD 90
-    TYPE STATIC
+add_library(gdktime STATIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game_loop.cpp)
 
-    PUBLIC_INCLUDE_DIRECTORIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+add_library(gdk::time ALIAS gdktime)
 
-    SOURCE_LIST
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/game_loop.cpp
-)
+set_target_properties(gdktime PROPERTIES EXPORT_NAME time)
+
+set_target_properties(gdktime PROPERTIES PREFIX "lib")
+
+jfc_generate_cmake_header()
+
+target_include_directories(gdktime
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:include>"
+    PRIVATE
+        "${PROJECT_BINARY_DIR}/generated_include/"
+    )
+
+target_compile_features(gdktime PUBLIC cxx_std_20)
 
 if (GDKTIME_BUILD_TESTS)
     add_subdirectory(test)

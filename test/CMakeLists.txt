@@ -10,11 +10,8 @@ jfc_add_tests(
         "${CMAKE_CURRENT_LIST_DIR}/rate_types_test.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/host_loop_test.cpp"
 
-    INCLUDE_DIRECTORIES
-        "${${PROJECT_NAME}_INCLUDE_DIRECTORIES}"
-
     LIBRARIES
-        "${${PROJECT_NAME}_LIBRARIES}")
+        gdktime)
 
 file(GLOB_RECURSE GDKTIME_PUBLIC_HEADERS
     "${CMAKE_CURRENT_LIST_DIR}/../include/gdk/*.h")
@@ -35,8 +32,7 @@ endforeach()
 
 add_library(gdktime_header_self_containment OBJECT ${GDKTIME_SELF_CONTAINMENT_SOURCES})
 
-target_include_directories(gdktime_header_self_containment
-    PRIVATE "${gdktime_INCLUDE_DIRECTORIES}")
+target_link_libraries(gdktime_header_self_containment PRIVATE gdktime)
 
 set_target_properties(gdktime_header_self_containment PROPERTIES
     CXX_STANDARD 20
