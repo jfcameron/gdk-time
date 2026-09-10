@@ -49,7 +49,7 @@ set_target_properties(gdktime PROPERTIES EXPORT_NAME time)
 
 set_target_properties(gdktime PROPERTIES PREFIX "lib")
 
-jfc_generate_cmake_header()
+jfc_generate_build_info()
 
 target_include_directories(gdktime
     PUBLIC
