@@ -8,6 +8,7 @@ jfc_add_tests(
         "${CMAKE_CURRENT_LIST_DIR}/fixed_step_test.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/rate_types_test.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/host_loop_test.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/ticked_frame_time_test.cpp"
 
     LIBRARIES
         gdktime)

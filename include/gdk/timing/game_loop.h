@@ -6,8 +6,10 @@
 #include <gdk/timing/types.h>
 
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <functional>
+#include <optional>
 
 namespace gdk::timing {
     /// \brief calls a behaviour once per frame, at a bounded rate, until it asks to stop
@@ -159,6 +161,8 @@ namespace gdk::timing {
         time_type m_FixedDelta{0};
 
         frame m_Frame{0, 0, 0, 0, 0};
+
+        std::optional<std::chrono::steady_clock::time_point> m_LastTickStart;
 
         time_type m_Accumulator{0};
 

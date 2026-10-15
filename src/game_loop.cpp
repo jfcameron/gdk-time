@@ -107,6 +107,7 @@ void game_loop::reset() {
     const running_scope runningScope(m_Running);
 
     m_Frame = frame{0, 0, 0, 0, 0};
+    m_LastTickStart.reset();
     m_Accumulator = 0;
     m_StepIndex = 0;
     m_ShouldClose = false;
@@ -128,6 +129,16 @@ bool game_loop::tick() {
     constexpr time_type SPIN_MARGIN(0.0002);
 
     const steady_clock::time_point currentFrameStartTimePoint(steady_clock::now());
+
+    if (m_LastTickStart) {
+        m_Frame.unscaled_delta = std::min(
+            duration<time_type>(currentFrameStartTimePoint - *m_LastTickStart).count(), m_MaximumDeltaTime);
+        m_Frame.delta = m_Frame.unscaled_delta * time_scale();
+        m_Frame.elapsed += m_Frame.delta;
+        ++m_Frame.index;
+    }
+
+    m_LastTickStart = currentFrameStartTimePoint;
 
     if (m_FixedBehavior) {
         m_Accumulator += m_Frame.delta;
@@ -157,11 +168,9 @@ bool game_loop::tick() {
         ? 0
         : 1.0 / framesPerSecond);
 
-    time_type timeSpentOnCurrentFrame(0);
-
     for (;;) {
-        timeSpentOnCurrentFrame =
-            duration<time_type>(steady_clock::now() - currentFrameStartTimePoint).count();
+        const time_type timeSpentOnCurrentFrame(
+            duration<time_type>(steady_clock::now() - currentFrameStartTimePoint).count());
 
         const time_type remaining(frameTime - timeSpentOnCurrentFrame);
 
@@ -170,11 +179,6 @@ bool game_loop::tick() {
         if (remaining > SPIN_MARGIN)
             std::this_thread::sleep_for(duration<time_type>(remaining - SPIN_MARGIN));
     }
-
-    m_Frame.unscaled_delta = std::min(timeSpentOnCurrentFrame, m_MaximumDeltaTime);
-    m_Frame.delta = m_Frame.unscaled_delta * time_scale();
-    m_Frame.elapsed += m_Frame.delta;
-    ++m_Frame.index;
 
     return SHOULD_CONTINUE;
 }
