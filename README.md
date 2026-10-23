@@ -1,5 +1,5 @@
 # gdk-time
-game development kit timing lib.
+Timing library for games.
 
 ## Getting Started
 Install cmake 3.21 or greater, and a c++20 compatible compiler 
