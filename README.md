@@ -23,12 +23,12 @@ using namespace gdk::timing;
 
 game_loop(frames_per_second{60},
     [&](const game_loop::frame aFrame) {
-        render(aFrame.interpolation);
+        render(aFrame.interpolation); // User rendering update
         return game_loop::SHOULD_CONTINUE;
     },
     steps_per_second{60},
     [&](const game_loop::step aStep) {
-        world.integrate(aStep.delta);
+        world.integrate(aStep.delta); // User simulation update
         return game_loop::SHOULD_CONTINUE;
     }).run();
 ```
